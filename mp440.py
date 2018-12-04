@@ -1,6 +1,7 @@
 import inspect
 import sys
 
+#
 '''
 Raise a "not defined" exception as a reminder 
 '''
