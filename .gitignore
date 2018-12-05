@@ -6,3 +6,4 @@ manifest.mf
 build.xml
 test.py
 play.py
+mp440_holder.py
