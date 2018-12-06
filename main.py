@@ -190,9 +190,13 @@ if __name__ == "__main__":
 
     # This is for part a of the MP. Comment this when you want to work on part b of the MP
     data = _load_data()
+
+    #for line in data:
+    #    print str(line)
     #print str(data)
+
     output = mp.kalman2d(data)
-    #plot(data, output)
+    mp.plot(data, output)
 
     # This is for part b of the MP. Uncomment when you work on this part of the MP
     '''

@@ -2,7 +2,8 @@ import inspect
 import sys
 import numpy as np
 import pygame as pg
-import matplotlib as mp
+import matplotlib as mpl
+import matplotlib.pyplot as pyp
 
 #
 '''
@@ -55,16 +56,17 @@ def kalman2d(data):
         #xkU and xkZ are 2x1 matrices
         xk = np.add(xkPrev, kGain.dot(np.subtract(uPrev, xkPrev)))
         
-        estimated.append(xk)
+        estimated.append(xk.tolist())
 
         xkPrev = xk
         uPrev = np.array([[item[0]], [item[1]]])
-        
-    print
-    print "ESTIMATED:"
-    for pair in estimated:
-        print str(pair)
-    
+       
+    #print
+    #print "ESTIMATED:"
+    #for pair in estimated:
+    #    print str(pair)
+    #print str(estimated)
+
     return estimated
 
 '''
@@ -73,8 +75,41 @@ Plotting
 def plot(data, output):
     # Your code starts here
     # You should remove _raise_not_defined() after you complete your code
+    k = []
+    z1 = []
+    z2 = []
+    x1 = []
+    x2 = []
+
+    for i in range(1, len(data)):
+        k.append(i)
+        z1.append(data[i][2])
+        z2.append(data[i][3])
+        #x1.append(output[i])
+
+    for row in output:
+        x1.append(row[0][0])
+        x2.append(row[1][0])
+
+    '''
+    print "x1:"
+    for line in x1:
+        print str(line)
+    '''
+    
+    pyp.plot(k, z1, 'b')
+    pyp.plot(k, z2, 'b--')
+    pyp.plot(k, x1, 'r')
+    pyp.plot(k, x2, 'r--')
+    
+    '''
+    pyp.plot(x1, x2, 'r')
+    pyp.plot(z1, z2, 'b')
+    '''
+    
+    pyp.show()
     # Your code ends here 
-    _raise_not_defined()
+    #_raise_not_defined()
     return
 
 '''
