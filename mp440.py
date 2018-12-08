@@ -25,6 +25,7 @@ def kalman2d(data):
     I = np.eye(2, dtype=float)
     H = np.eye(2, dtype=float)
     H_T = np.eye(2, dtype=float)
+    Q = np.array([[10.0**(-4.0), 2.0*(10.0**(-5.0))], [2.0*(10.0**(-5.0)), 10.0**(-4.0)]])
     R = np.array([[10.0**(-2.0), 5.0*(10.0**(-3.0))], [5.0*(10.0**(-3.0)), 2.0*(10.0**(-2.0))]])
     #Check what the values should be. Already confirmed this should be a 2x1 matrix
     xkPrev = np.array([[0.0],[0.0]])
@@ -54,12 +55,15 @@ def kalman2d(data):
         P = (I - kGain.dot(H)).dot(pPrev)
         
         #xkU and xkZ are 2x1 matrices
+        #TODO: Modify to include z?
         xk = np.add(xkPrev, kGain.dot(np.subtract(uPrev, xkPrev)))
         
         estimated.append(xk.tolist())
 
         xkPrev = xk
         uPrev = np.array([[item[0]], [item[1]]])
+        pPrev = P + Q
+        
        
     #print
     #print "ESTIMATED:"
