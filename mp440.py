@@ -18,13 +18,14 @@ Kalman 2D
 '''
 def kalman2d(data):
     estimated = []
+    holder = []
 
     # H and H^T are 2x2 identity matrices, not included here because they do not affect the calculations in this case
-    pPrev = np.array([[1, 0], [0, 1]])
+    pPrev = np.eye(2, dtype=float)
 
     I = np.eye(2, dtype=float)
-    H = np.eye(2, dtype=float)
-    H_T = np.eye(2, dtype=float)
+    H = np.array([1, 1])
+    H_T = np.array([[1],[1]])
     Q = np.array([[10.0**(-4.0), 2.0*(10.0**(-5.0))], [2.0*(10.0**(-5.0)), 10.0**(-4.0)]])
     R = np.array([[10.0**(-2.0), 5.0*(10.0**(-3.0))], [5.0*(10.0**(-3.0)), 2.0*(10.0**(-2.0))]])
     #Check what the values should be. Already confirmed this should be a 2x1 matrix
@@ -38,12 +39,13 @@ def kalman2d(data):
     u2Prev = data[0][1]
     uPrev = np.array([[u1Prev], [u2Prev]])
 
-    pList = [pPrev]
+    holder.append(pPrev)
 
     isFirstItem = True
-    #partialData = data[0:3]
+    partialData = data[0:5]
     
-    for item in data:        
+    #for item in data:
+    for item in data:
         if(isFirstItem):
             isFirstItem = False
             continue
@@ -51,25 +53,38 @@ def kalman2d(data):
         #Update
         #kGain is a 2x2 matrix
         kGain = np.divide(pPrev.dot(H_T), np.add(H.dot(pPrev.dot(H_T)), R))
+        print "kGain: " + str(kGain)
+        print "DENOMINATOR: " + str(np.add(H.dot(pPrev.dot(H_T)), R))
         #P is a 2x2 matrix
         P = (I - kGain.dot(H)).dot(pPrev)
         
         #xkU and xkZ are 2x1 matrices
         #TODO: Modify to include z?
         xk = np.add(xkPrev, kGain.dot(np.subtract(uPrev, xkPrev)))
+        print "xk: " + str(xk)
         
-        estimated.append(xk.tolist())
+        holder.append(xk)
+        #estimated.append(xk)
+        print
+        #print "estimated: " + str(estimated)
+        print
 
         xkPrev = xk
         uPrev = np.array([[item[0]], [item[1]]])
         pPrev = P + Q
         
-       
+    for npArray in holder:
+        listForm = npArray.tolist()
+        print "listForm: " + str(listForm)
+        estimated.append(listForm)
+
+    print "ESTIMATED: " + str(estimated)
     #print
     #print "ESTIMATED:"
     #for pair in estimated:
     #    print str(pair)
     #print str(estimated)
+
 
     return estimated
 
@@ -79,6 +94,19 @@ Plotting
 def plot(data, output):
     # Your code starts here
     # You should remove _raise_not_defined() after you complete your code
+
+    k = []
+    x1 = []
+    x2 = []
+
+    for i in range(1, len(output)):
+        k.append(i)
+        x1.append(output[i][0][0])
+        x2.append(output[i][1][0])
+
+    pyp.plot(k, x1, 'b')
+    pyp.plot(k, x2, 'r')
+    '''
     k = []
     z1 = []
     z2 = []
@@ -94,6 +122,7 @@ def plot(data, output):
     for row in output:
         x1.append(row[0][0])
         x2.append(row[1][0])
+    '''
 
     '''
     print "x1:"
@@ -101,10 +130,14 @@ def plot(data, output):
         print str(line)
     '''
     
+    '''
     pyp.plot(k, z1, 'b')
     pyp.plot(k, z2, 'b--')
     pyp.plot(k, x1, 'r')
     pyp.plot(k, x2, 'r--')
+
+    pyp.plot(k, output[row][0][0], 'g')
+    '''
     
     '''
     pyp.plot(x1, x2, 'r')
