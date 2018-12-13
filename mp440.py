@@ -19,59 +19,70 @@ Kalman 2D
 def kalman2d(data):
     estimated = []
     holder = []
+    myLambda = 1.0
 
     # H and H^T are 2x2 identity matrices, not included here because they do not affect the calculations in this case
-    pPrev = np.eye(2, dtype=float)
+    pEstimate = np.eye(2, dtype=float)
+    pEstimate = pEstimate.dot(myLambda)
 
     I = np.eye(2, dtype=float)
-    H = np.array([1, 1])
-    H_T = np.array([[1],[1]])
+    H = np.array([1.0, 1.0])
+    H_T = np.array([[1.0],[1.0]])
     Q = np.array([[10.0**(-4.0), 2.0*(10.0**(-5.0))], [2.0*(10.0**(-5.0)), 10.0**(-4.0)]])
     R = np.array([[10.0**(-2.0), 5.0*(10.0**(-3.0))], [5.0*(10.0**(-3.0)), 2.0*(10.0**(-2.0))]])
     #Check what the values should be. Already confirmed this should be a 2x1 matrix
-    xkPrev = np.array([[0.0],[0.0]])
-
-    z1Prev = data[0][2]
-    z2Prev = data[0][3]
-    zPrev = np.array([[z1Prev], [z2Prev]])
+    initialGuess = np.array([[1.0],[1.0]])
+    xkPrev = initialGuess.dot(myLambda)
+    #holder.append(xkPrev)
 
     u1Prev = data[0][0]
     u2Prev = data[0][1]
     uPrev = np.array([[u1Prev], [u2Prev]])
 
-    holder.append(pPrev)
+    #holder.append(initialGuess)
 
     isFirstItem = True
     partialData = data[0:5]
+
+
     
-    #for item in data:
     for item in data:
+        '''
         if(isFirstItem):
             isFirstItem = False
             continue
-        z = np.array([[item[2]],[item[3]]])
-        #Update
-        #kGain is a 2x2 matrix
-        kGain = np.divide(pPrev.dot(H_T), np.add(H.dot(pPrev.dot(H_T)), R))
-        print "kGain: " + str(kGain)
-        print "DENOMINATOR: " + str(np.add(H.dot(pPrev.dot(H_T)), R))
-        #P is a 2x2 matrix
-        P = (I - kGain.dot(H)).dot(pPrev)
-        
-        #xkU and xkZ are 2x1 matrices
-        #TODO: Modify to include z?
-        xk = np.add(xkPrev, kGain.dot(np.subtract(uPrev, xkPrev)))
-        print "xk: " + str(xk)
-        
-        holder.append(xk)
-        #estimated.append(xk)
+        '''
+        u = np.array([[data[0][0]], [data[0][1]]])
+        z = np.array([[data[0][2]], [data[0][3]]])
+
+        #Prediction step
+        xk = np.add(xkPrev, u)
+        pk = np.add((H.dot(pEstimate)).dot(H_T), Q)
+
+        #Update step
+        kGainNumerator = pk.dot(H_T)
+        kGainDenominator = np.add((H.dot(pk)).dot(H_T), R)
+        kGain = np.divide(kGainNumerator, kGainDenominator)
+
         print
-        #print "estimated: " + str(estimated)
+        print "kGain: " + str(kGain)
+        print "z: " + str(z)
+        print "xk: " + str(xk)
+        print "H: " + str(H)
+        print "H.xk: " + str(H.dot(xk))
+        print "Q: " + str(Q)
+        print "R: " + str(R)
         print
 
-        xkPrev = xk
-        uPrev = np.array([[item[0]], [item[1]]])
-        pPrev = P + Q
+        xkPrev = np.add(xk, kGain.dot(np.subtract(z, H.dot(xk))))
+        pEstimate = np.subtract(pk, (kGain.dot(H)).dot(pk))
+
+        Q = np.subtract(Q, kGain.dot(Q))
+        R = np.subtract(R, kGain.dot(R))
+
+        holder.append(xk)
+
+
         
     for npArray in holder:
         listForm = npArray.tolist()
@@ -98,14 +109,32 @@ def plot(data, output):
     k = []
     x1 = []
     x2 = []
+    z1 = []
+    z2 = []
 
-    for i in range(1, len(output)):
+    print str(len(output))
+    for i in range(0, len(output)):
+        #print str(i)
         k.append(i)
         x1.append(output[i][0][0])
         x2.append(output[i][1][0])
+        z1.append(data[i][2])
+        z2.append(data[i][3])
 
+    '''
+    pyp.plot(x1, x2, 'b')
+    pyp.plot(z1, z2, 'r')
+    '''
+
+    
     pyp.plot(k, x1, 'b')
     pyp.plot(k, x2, 'r')
+    pyp.plot(k, z1, 'g')
+    pyp.plot(k, z2, 'm')
+    
+
+
+
     '''
     k = []
     z1 = []
